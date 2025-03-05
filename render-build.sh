@@ -1,18 +1,13 @@
 #!/bin/sh
 
-# Install backend dependencies
+# Navigate to the server directory and install dependencies
 cd server
 npm install
 
-# Go back to root
-cd ..
-
-# Install frontend dependencies
-npm install --prefix client
-
-# Build frontend
-npm run build --prefix client
-
 # Start the backend server
-npm start --prefix server
+npm start &
 
+# Navigate to the client directory, install dependencies, and build frontend
+cd ../client
+npm install
+npm run build
