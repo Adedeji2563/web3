@@ -27,6 +27,11 @@ mongoose
     process.exit(1);
   });
 
+// Define a root route to avoid "Cannot GET /" issue
+app.get("/", (req, res) => {
+  res.send("🚀 Server is running! Use /deploy or /stop to manage bots.");
+});
+
 const BotSchema = new mongoose.Schema({
   token: String,
   script: String,
@@ -38,7 +43,7 @@ app.post("/deploy", async (req, res) => {
   const { token, script } = req.body;
 
   if (!token || !script) {
-    return res.status(400).send("Missing token or script");
+    return res.status(400).json({ error: "Missing token or script" });
   }
 
   const bot = new Bot({ token, script });
@@ -47,9 +52,9 @@ app.post("/deploy", async (req, res) => {
   exec(`pm2 start ${script} --name bot-${token}`, (err) => {
     if (err) {
       console.error("❌ Failed to start bot:", err);
-      return res.status(500).send("Failed to start bot");
+      return res.status(500).json({ error: "Failed to start bot" });
     }
-    res.send("✅ Bot deployed successfully!");
+    res.json({ message: "✅ Bot deployed successfully!" });
   });
 });
 
@@ -57,15 +62,19 @@ app.post("/deploy", async (req, res) => {
 app.post("/stop", async (req, res) => {
   const { token } = req.body;
   
+  if (!token) {
+    return res.status(400).json({ error: "Missing token" });
+  }
+
   exec(`pm2 stop bot-${token}`, (err) => {
     if (err) {
       console.error("❌ Failed to stop bot:", err);
-      return res.status(500).send("Failed to stop bot");
+      return res.status(500).json({ error: "Failed to stop bot" });
     }
-    res.send("✅ Bot stopped successfully!");
+    res.json({ message: "✅ Bot stopped successfully!" });
   });
 });
 
-// Use the Render PORT
-const PORT = process.env.PORT || 8080;
+// Use the correct port for Render
+const PORT = process.env.PORT || 10000; // Render free plan might use dynamic ports
 app.listen(PORT, "0.0.0.0", () => console.log(`🚀 Server running on port ${PORT}`));
