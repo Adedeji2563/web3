@@ -1,8 +1,9 @@
+require("dotenv").config(); // Load environment variables early
+
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const { exec } = require("child_process");
-require("dotenv").config();
 
 const app = express();
 app.use(express.json());
